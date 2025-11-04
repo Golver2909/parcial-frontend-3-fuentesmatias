@@ -1,8 +1,22 @@
 <script setup lang="ts">
 import type { Book } from '@/models/Book';
 import { defineProps } from 'vue';
+import { useBookCartStore } from '@/stores/cartStore';
+import Swal from 'sweetalert2';
 
 const props = defineProps<{ book: Book }>()
+
+const cartStore = useBookCartStore()
+
+const addToCart = ():void =>{
+    cartStore.addBook(props.book)
+    Swal.fire({
+        title:`'${props.book.title}' añadido`,
+        icon: "success",
+        text:`El libro '${props.book.title}' fue añadido con exito a su carrito`,
+        confirmButtonColor: "#065f46"
+    })
+}
 
 </script>
 
@@ -13,8 +27,8 @@ const props = defineProps<{ book: Book }>()
         </div>
         <h3 class="text-lg font-semibold mt-3">{{ book.title }}</h3>
         <p class="text-sm text-gray-600">por {{ book.author }}</p>
-        <p class="mt-2 text-emerald-700 font-medium">${{ book.price }}</p>
-        <button class="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg hover:bg-emerald-700 transition">
+        <p class="mt-2 text-emerald-700 font-medium">${{ book.price.toLocaleString('ARS') }}</p>
+        <button class="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg hover:bg-emerald-700 transition" @click="addToCart()">
             Agregar al carrito
         </button>
     </div>

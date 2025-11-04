@@ -1,8 +1,33 @@
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
+import { defineProps, defineEmits, computed } from 'vue'
+import { useBookCartStore } from '@/stores/cartStore';
+import Swal from 'sweetalert2';
 
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits(['close'])
+
+const storeCart = useBookCartStore()
+
+//Libros del carrito
+const cartBooks = computed(() => storeCart.getBooks)
+//Total valor carrito
+const totalValueCart = computed(() => storeCart.getTotalValue)
+//Total de libros en el carrito
+const totalBooks = computed(() => storeCart.getQtyBooks)
+
+const removeFromCart = (id:number):void =>{
+    storeCart.removeBook(id)
+}
+
+const clearCart = ():void =>{
+    storeCart.clearCart()
+    Swal.fire({
+        title:'Carrito limpiado con exito',
+        icon: "success",
+        confirmButtonColor: "#065f46"
+    })
+}
+
 </script>
 
 <template>
@@ -26,32 +51,42 @@ const emit = defineEmits(['close'])
 
         <!-- Lista de libros -->
         <div class="flex-1 overflow-y-auto p-4 space-y-4">
-            <div v-for="n in 3" :key="n"
-                class="flex items-center justify-between bg-emerald-50 border border-emerald-100 p-3 rounded-lg">
-                <div>
-                    <h3 class="font-medium text-gray-800">Libro {{ n }}</h3>
-                    <p class="text-sm text-gray-500">$ {{ n * 2000 }}</p>
-                </div>
-                <button class="text-red-500 hover:text-red-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            <div v-if="totalBooks">
+                <div v-for="b in cartBooks" :key="b.id"
+                    class="flex items-center justify-between bg-emerald-50 border border-emerald-100 p-3 rounded-lg">
+                    <div>
+                        <h3 class="font-medium text-gray-800">Libro {{ b.title }}</h3>
+                        <p class="text-sm text-gray-500">Cantidad: {{ b.qty }}</p>
+                        <p class="text-sm text-gray-500">$ {{ (b.price*b.qty).toLocaleString('ARS') }}</p>
+                    </div>
+                    <button class="text-red-500 rounded-sm hover:text-red-700 hover:bg-zinc-950 transition" @click="removeFromCart(b.id)">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+                        </svg>
+                    </button>
+                </div>
             </div>
+            <div v-else class="flex items-center justify-between bg-emerald-50 border border-emerald-100 p-3 rounded-lg">
+                <p class="font-medium text-gray-800">Aun no ha añadido libros al carrito</p>
+            </div>
+            
         </div>
 
         <!-- Totales -->
-        <div class="p-4 border-t border-gray-200 bg-emerald-100">
+        <div v-if="totalBooks" class="p-4 border-t border-gray-200 bg-emerald-100">
             <div class="flex justify-between mb-2">
                 <span class="font-medium text-gray-700">Total de items:</span>
-                <span>3</span>
+                <span>{{ totalBooks }}</span>
             </div>
             <div class="flex justify-between mb-4">
                 <span class="font-medium text-gray-700">Total:</span>
-                <span class="font-semibold text-emerald-700">$6000</span>
+                <span class="font-semibold text-emerald-700">${{ totalValueCart.toLocaleString('ARS') }}</span>
             </div>
+            <button class="w-full mb-4 bg-red-500 text-white py-2 rounded-lg hover:bg-red-800 transition" @click="clearCart()">
+                Limpiar carrito
+            </button>
             <button class="w-full bg-emerald-600 text-white py-2 rounded-lg hover:bg-emerald-700 transition">
                 Finalizar compra
             </button>
