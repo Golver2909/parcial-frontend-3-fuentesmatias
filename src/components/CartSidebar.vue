@@ -24,7 +24,8 @@ const clearCart = ():void =>{
     Swal.fire({
         title:'Carrito limpiado con exito',
         icon: "success",
-        confirmButtonColor: "#065f46"
+        confirmButtonColor: "#065f46",
+        timer: 2500
     })
 }
 

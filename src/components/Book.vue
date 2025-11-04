@@ -14,7 +14,8 @@ const addToCart = ():void =>{
         title:`'${props.book.title}' añadido`,
         icon: "success",
         text:`El libro '${props.book.title}' fue añadido con exito a su carrito`,
-        confirmButtonColor: "#065f46"
+        confirmButtonColor: "#065f46",
+        timer: 2500
     })
 }
 
